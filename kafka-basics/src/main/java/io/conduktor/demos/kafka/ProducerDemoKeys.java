@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-public class ProducerDemoWithCallback {
+public class ProducerDemoKeys {
 
-    private static final Logger log = LoggerFactory.getLogger(ProducerDemoWithCallback.class.getSimpleName());
+    private static final Logger log = LoggerFactory.getLogger(ProducerDemoKeys.class.getSimpleName());
 
     public static void main(String[] args) {
         log.info("I am a Kafka Producer!");
@@ -30,19 +30,18 @@ public class ProducerDemoWithCallback {
         properties.setProperty("key.serializer", StringSerializer.class.getName());
         properties.setProperty("value.serializer", StringSerializer.class.getName());
 
-//        properties.setProperty("batch.size", "400");
-
-//        properties.setProperty("partitioner.class", RoundRobinPartitioner.class.getName());
-
-
         // create the producer
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
 
-        for (int j = 0; j < 10; j++) {
-            for (int i = 0; i < 30; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int i = 0; i < 10; i++) {
+                String topic = "demo_java";
+                String key = "id_" + i;
+                String value = "hello world " + i;
+
                 // create a Producer Record
                 ProducerRecord<String, String> producerRecord =
-                        new ProducerRecord<>("demo_java", "hello world " + i);
+                        new ProducerRecord<>(topic, key, value);
 
                 // send data
                 producer.send(producerRecord, new Callback() {
@@ -51,11 +50,7 @@ public class ProducerDemoWithCallback {
                         // executes every time a record successfully sent or an exception is thrown
                         if (e == null) {
                             // the record was successfully sent
-                            log.info("Received new metadata \n" +
-                                    "Topic: " + metadata.topic() + "\n" +
-                                    "Partition: " + metadata.partition() + "\n" +
-                                    "Offset: " + metadata.offset() + "\n" +
-                                    "Timestamp: " + metadata.timestamp());
+                            log.info("Key: " + key + " | Partition: " + metadata.partition());
                         } else {
                             log.error("Error while producing", e);
                         }
